@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Scout AI - Processing</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 550px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #1d3557;
+        }
+
+        .message {
+            margin-top: 16px;
+            font-weight: bold;
+            color: #2a9d8f;
+        }
+
+        .message.error {
+            color: #e63946;
+        }
+
+        .spinner {
+            margin: 30px auto;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e0e0e0;
+            border-top-color: #1d3557;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .stats-box {
+            margin-top: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .stats-box h3 {
+            margin-top: 0;
+            color: #1d3557;
+        }
+
+        .stats-box table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stats-box td {
+            padding: 4px 8px;
+            color: #333;
+        }
+
+        .stats-box td:first-child {
+            font-weight: bold;
+            color: #1d3557;
+        }
+
+        .video-preview {
+            margin-top: 20px;
+        }
+
+        .video-preview video {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .actions a {
+            display: inline-block;
+            background: #2a9d8f;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .actions a:hover {
+            background: #238b80;
+        }
+
+        .actions a.download {
+            background: #1d3557;
+        }
+
+        .actions a.download:hover {
+            background: #16304d;
+        }
+
+        .back-link {
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #1d3557;
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Football Scout AI</h1>
+
+        {% if state == "processing" %}
+            <div class="spinner"></div>
+            <div class="message">{{ message }}</div>
+            <p style="color: #888; font-size: 14px;">This may take several minutes depending on video length. Please don't close this page.</p>
+        {% elif state == "done" %}
+            <div class="message">{{ message }}</div>
+
+            {% if stats %}
+                <div class="stats-box">
+                    <h3>Match Statistics</h3>
+                    <table>
+                        <tr><td>Passes</td><td>{{ stats.passes }}</td></tr>
+                        <tr><td>Shots</td><td>{{ stats.shots }}</td></tr>
+                        <tr><td>Goals</td><td>{{ stats.goals }}</td></tr>
+                        <tr><td>Interceptions</td><td>{{ stats.interceptions }}</td></tr>
+                    </table>
+
+                    {% if stats.events %}
+                    <h3>Event Log</h3>
+                    <table>
+                        {% for ev in stats.events %}
+                        <tr>
+                            <td style="width:85px">
+                                {% if ev.type == "goal" %}<span style="color:#e63946;font-weight:bold">GOAL</span>
+                                {% elif ev.type == "shot" %}<span style="color:#ff8c00;font-weight:bold">SHOT</span>
+                                {% elif ev.type == "interception" %}<span style="color:#aaa;font-weight:bold">INTERCEPT</span>
+                                {% else %}<span style="color:#2a9d8f;font-weight:bold">PASS</span>{% endif %}
+                            </td>
+                            <td>
+                                {% if ev.type == "goal" %}
+                                    Player {{ ev.player }} ({{ ev.team }})
+                                {% elif ev.type == "shot" %}
+                                    Player {{ ev.from }} ({{ ev.from_team }}) &#10132; Player {{ ev.to }} ({{ ev.to_team }})
+                                {% else %}
+                                    Player {{ ev.from }} ({{ ev.from_team }}) &#10132; Player {{ ev.to }} ({{ ev.to_team }})
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <div class="video-preview">
+                <video controls>
+                    <source src="/video" type="video/mp4">
+                    Your browser does not support video playback.
+                </video>
+            </div>
+            <div class="actions">
+                <a href="/download" class="download">Download Video</a>
+                <a href="/video" target="_blank">Open in New Tab</a>
+            </div>
+
+        {% elif state == "error" %}
+            <div class="message error">{{ message }}</div>
+        {% endif %}
+
+        <div class="back-link">
+            <a href="/">Upload another video</a>
+        </div>
+    </div>
+
+    {% if state == "processing" %}
+    <script>
+        setTimeout(function() {
+            window.location.reload();
+        }, 5000);
+    </script>
+    {% endif %}
+</body>
+</html>

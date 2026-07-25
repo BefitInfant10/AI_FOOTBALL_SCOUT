@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Scout AI</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #1d3557;
+        }
+
+        p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #1d3557;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #16304d;
+        }
+
+        .message {
+            margin-top: 16px;
+            font-weight: bold;
+            color: #e63946;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Football Scout AI</h1>
+        <p>Upload a football video for player tracking, pass/shot detection, and stats.</p>
+
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <input type="file" name="video_file" accept="video/*" required>
+            <button type="submit">Upload &amp; Analyze</button>
+        </form>
+
+        {% if message %}
+            <div class="message">{{ message }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
