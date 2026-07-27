@@ -1,4 +1,4 @@
-# AI Football Scout
+# football-match-analysis
 
 AI Football Scout is a computer vision project that analyzes football match videos using Artificial Intelligence. The current implementation focuses on detecting and analyzing passes and shots from football matches, with the goal of expanding into a complete football analytics platform.
 
