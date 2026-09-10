@@ -1,0 +1,29 @@
+{
+    "passes": 2,
+    "shots": 0,
+    "goals": 0,
+    "interceptions": 0,
+    "shot_saved": 0,
+    "events": [
+        {
+            "type": "pass",
+            "from_player": "23",
+            "to_player": "10",
+            "team": "A",
+            "frame": 60,
+            "time": 2.0,
+            "distance": 252.9,
+            "description": "PASS: A #23 \u2192 A #10"
+        },
+        {
+            "type": "pass",
+            "from_player": "27",
+            "to_player": "7",
+            "team": "A",
+            "frame": 139,
+            "time": 4.6,
+            "distance": 83.5,
+            "description": "PASS: A #27 \u2192 A #7"
+        }
+    ]
+}

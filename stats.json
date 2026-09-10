@@ -1,24 +1,26 @@
 {
-    "passes": 2,
-    "shots": 0,
+    "passes": 1,
+    "shots": 1,
     "goals": 0,
     "interceptions": 0,
+    "shot_saved": 0,
     "events": [
         {
-            "type": "pass",
-            "from": "9",
-            "to": "4",
-            "from_team": "Team 1",
-            "to_team": "Team 1",
-            "frame": 93
+            "type": "shot",
+            "from": null,
+            "from_team": null,
+            "direction": "right",
+            "speed": 98.7,
+            "frame": 46
         },
         {
             "type": "pass",
-            "from": "37",
-            "to": "24",
+            "from": "9",
+            "to": "6",
             "from_team": "Team 1",
             "to_team": "Team 1",
-            "frame": 187
+            "distance": 92.7,
+            "frame": 169
         }
     ]
 }

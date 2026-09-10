@@ -1,52 +1,121 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Football Scout AI - Processing</title>
+    <title>Football Scout AI
+        {% if state == "processing" %} - Processing...
+        {% elif state == "done" %} - Results
+        {% elif state == "error" %} - Error
+        {% endif %}
+    </title>
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f2f5f9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0f1923;
+            color: #fff;
             min-height: 100vh;
         }
 
-        .container {
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-            width: 100%;
-            max-width: 550px;
+        .header {
+            background: linear-gradient(135deg, #1a2a3a, #0d1b2a);
+            padding: 16px 24px;
+            border-bottom: 2px solid #1e90ff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            color: #1e90ff;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-processing {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+            border: 1px solid rgba(255, 165, 0, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .badge-done {
+            background: rgba(0, 200, 83, 0.2);
+            color: #00c853;
+            border: 1px solid rgba(0, 200, 83, 0.4);
+        }
+
+        .badge-error {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+            border: 1px solid rgba(255, 68, 68, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .processing-view {
             text-align: center;
+            padding: 60px 20px;
         }
 
-        h1 {
-            margin-top: 0;
-            color: #1d3557;
+        .processing-view h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: #fff;
         }
 
-        .message {
-            margin-top: 16px;
-            font-weight: bold;
-            color: #2a9d8f;
+        .processing-view .subtitle {
+            color: #8899aa;
+            font-size: 14px;
+            margin-bottom: 40px;
         }
 
-        .message.error {
-            color: #e63946;
+        .spinner-ring {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            position: relative;
         }
 
-        .spinner {
-            margin: 30px auto;
-            width: 50px;
-            height: 50px;
-            border: 5px solid #e0e0e0;
-            border-top-color: #1d3557;
+        .spinner-ring::before,
+        .spinner-ring::after {
+            content: '';
+            position: absolute;
             border-radius: 50%;
+        }
+
+        .spinner-ring::before {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(30, 144, 255, 0.15);
+        }
+
+        .spinner-ring::after {
+            width: 80px;
+            height: 80px;
+            border: 4px solid transparent;
+            border-top-color: #1e90ff;
             animation: spin 1s linear infinite;
         }
 
@@ -54,159 +123,372 @@
             to { transform: rotate(360deg); }
         }
 
-        .stats-box {
-            margin-top: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
+        .processing-steps {
+            max-width: 350px;
+            margin: 0 auto;
             text-align: left;
         }
 
-        .stats-box h3 {
-            margin-top: 0;
-            color: #1d3557;
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            color: #556677;
+            font-size: 14px;
         }
 
-        .stats-box table {
+        .step.active { color: #1e90ff; }
+        .step.done { color: #00c853; }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #334455;
+            flex-shrink: 0;
+        }
+
+        .step.active .step-dot {
+            background: #1e90ff;
+            box-shadow: 0 0 8px rgba(30, 144, 255, 0.5);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .step.done .step-dot { background: #00c853; }
+
+        .done-view {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .done-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .done-header h2 {
+            color: #00c853;
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .done-header p {
+            color: #8899aa;
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #1a2a3a;
+            border-radius: 10px;
+            padding: 18px 12px;
+            text-align: center;
+            border: 1px solid #2a3a4a;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover { transform: translateY(-2px); }
+
+        .stat-card .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: #8899aa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card.passes .stat-value { color: #00c853; }
+        .stat-card.shots .stat-value { color: #ffa500; }
+        .stat-card.goals .stat-value { color: #ff4444; }
+        .stat-card.intercepts .stat-value { color: #1e90ff; }
+
+        .event-log {
+            background: #1a2a3a;
+            border-radius: 10px;
+            border: 1px solid #2a3a4a;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .event-log-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid #2a3a4a;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ccd;
+        }
+
+        .event-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px;
+            border-bottom: 1px solid rgba(42, 58, 74, 0.5);
+            font-size: 13px;
+        }
+
+        .event-item:last-child { border-bottom: none; }
+
+        .event-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            min-width: 65px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .event-badge.goal { background: rgba(255, 68, 68, 0.2); color: #ff4444; }
+        .event-badge.shot { background: rgba(255, 165, 0, 0.2); color: #ffa500; }
+        .event-badge.saved { background: rgba(156, 89, 182, 0.2); color: #9b59b6; }
+        .event-badge.pass { background: rgba(0, 200, 83, 0.2); color: #00c853; }
+        .event-badge.intercept { background: rgba(30, 144, 255, 0.2); color: #1e90ff; }
+
+        .event-desc { color: #aabbcc; }
+        .event-desc strong { color: #fff; }
+
+        .video-section {
+            background: #1a2a3a;
+            border-radius: 10px;
+            border: 1px solid #2a3a4a;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .video-section-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid #2a3a4a;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ccd;
+        }
+
+        .video-section video {
             width: 100%;
-            border-collapse: collapse;
-        }
-
-        .stats-box td {
-            padding: 4px 8px;
-            color: #333;
-        }
-
-        .stats-box td:first-child {
-            font-weight: bold;
-            color: #1d3557;
-        }
-
-        .video-preview {
-            margin-top: 20px;
-        }
-
-        .video-preview video {
-            width: 100%;
-            border-radius: 8px;
+            display: block;
         }
 
         .actions {
-            margin-top: 15px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
         }
 
-        .actions a {
-            display: inline-block;
-            background: #2a9d8f;
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 18px;
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
         }
 
-        .actions a:hover {
-            background: #238b80;
+        .btn-primary { background: #1e90ff; color: #fff; }
+        .btn-primary:hover { background: #1a7de6; }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ccd;
+            border: 1px solid #3a4a5a;
         }
 
-        .actions a.download {
-            background: #1d3557;
-        }
-
-        .actions a.download:hover {
-            background: #16304d;
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
         }
 
         .back-link {
-            margin-top: 20px;
+            text-align: center;
+            margin-top: 24px;
         }
 
         .back-link a {
-            color: #1d3557;
+            color: #556677;
             text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s;
         }
 
-        .back-link a:hover {
-            text-decoration: underline;
-        }
+        .back-link a:hover { color: #1e90ff; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Football Scout AI</h1>
-
+    <div class="header">
+        <h1>FOOTBALL SCOUT AI</h1>
         {% if state == "processing" %}
-            <div class="spinner"></div>
-            <div class="message">{{ message }}</div>
-            <p style="color: #888; font-size: 14px;">This may take several minutes depending on video length. Please don't close this page.</p>
+            <span class="status-badge badge-processing">Processing</span>
         {% elif state == "done" %}
-            <div class="message">{{ message }}</div>
+            <span class="status-badge badge-done">Complete</span>
+        {% elif state == "error" %}
+            <span class="status-badge badge-error">Error</span>
+        {% endif %}
+    </div>
+
+    <div class="main">
+        {% if state == "processing" %}
+        <div class="processing-view">
+            <div class="spinner-ring"></div>
+            <h2>Analyzing Your Video</h2>
+            <p class="subtitle">Detecting players, tracking ball movement, and analyzing plays...</p>
+
+            <div class="processing-steps">
+                <div class="step done">
+                    <div class="step-dot"></div>
+                    <span>Video uploaded successfully</span>
+                </div>
+                <div class="step active">
+                    <div class="step-dot"></div>
+                    <span>Running AI detection (YOLOv8)</span>
+                </div>
+                <div class="step">
+                    <div class="step-dot"></div>
+                    <span>Tracking players (DeepSORT)</span>
+                </div>
+                <div class="step">
+                    <div class="step-dot"></div>
+                    <span>Analyzing passes, shots &amp; goals</span>
+                </div>
+                <div class="step">
+                    <div class="step-dot"></div>
+                    <span>Generating output video</span>
+                </div>
+            </div>
+        </div>
+
+        {% elif state == "done" %}
+        <div class="done-view">
+            <div class="done-header">
+                <h2>Analysis Complete</h2>
+                <p>Your video has been processed successfully</p>
+            </div>
 
             {% if stats %}
-                <div class="stats-box">
-                    <h3>Match Statistics</h3>
-                    <table>
-                        <tr><td>Passes</td><td>{{ stats.passes }}</td></tr>
-                        <tr><td>Shots</td><td>{{ stats.shots }}</td></tr>
-                        <tr><td>Goals</td><td>{{ stats.goals }}</td></tr>
-                        <tr><td>Interceptions</td><td>{{ stats.interceptions }}</td></tr>
-                    </table>
-
-                    {% if stats.events %}
-                    <h3>Event Log</h3>
-                    <table>
-                        {% for ev in stats.events %}
-                        <tr>
-                            <td style="width:85px">
-                                {% if ev.type == "goal" %}<span style="color:#e63946;font-weight:bold">GOAL</span>
-                                {% elif ev.type == "shot" %}<span style="color:#ff8c00;font-weight:bold">SHOT</span>
-                                {% elif ev.type == "interception" %}<span style="color:#aaa;font-weight:bold">INTERCEPT</span>
-                                {% else %}<span style="color:#2a9d8f;font-weight:bold">PASS</span>{% endif %}
-                            </td>
-                            <td>
-                                {% if ev.type == "goal" %}
-                                    Player {{ ev.player }} ({{ ev.team }})
-                                {% elif ev.type == "shot" %}
-                                    Player {{ ev.from }} ({{ ev.from_team }}) &#10132; Player {{ ev.to }} ({{ ev.to_team }})
-                                {% else %}
-                                    Player {{ ev.from }} ({{ ev.from_team }}) &#10132; Player {{ ev.to }} ({{ ev.to_team }})
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </table>
-                    {% endif %}
+            <div class="stats-grid">
+                <div class="stat-card passes">
+                    <div class="stat-value">{{ stats.passes }}</div>
+                    <div class="stat-label">Passes</div>
                 </div>
+                <div class="stat-card shots">
+                    <div class="stat-value">{{ stats.shots }}</div>
+                    <div class="stat-label">Shots</div>
+                </div>
+                <div class="stat-card goals">
+                    <div class="stat-value">{{ stats.goals }}</div>
+                    <div class="stat-label">Goals</div>
+                </div>
+                <div class="stat-card intercepts">
+                    <div class="stat-value">{{ stats.interceptions }}</div>
+                    <div class="stat-label">Intercepts</div>
+                </div>
+            </div>
+
+            {% if stats.events %}
+            <div class="event-log">
+                <div class="event-log-header">Event Timeline</div>
+                <div class="event-list">
+                    {% for ev in stats.events %}
+                    <div class="event-item">
+                        <span class="event-badge
+                            {% if ev.type == 'goal' %}goal
+                            {% elif ev.type == 'shot' %}shot
+                            {% elif ev.type == 'shot_saved' %}saved
+                            {% else %}pass{% endif %}">
+                            {% if ev.type == 'goal' %}GOAL
+                            {% elif ev.type == 'shot' %}SHOT
+                            {% elif ev.type == 'shot_saved' %}SAVED
+                            {% else %}PASS{% endif %}
+                        </span>
+                        <span class="event-desc">
+                            {% if ev.description is defined %}
+                                {{ ev.description }}
+                            {% elif ev.type == 'goal' %}
+                                <strong>{{ ev.team }}</strong> scored!
+                            {% elif ev.type == 'shot' %}
+                                <strong>{{ ev.team }}</strong> &#10132; Shot {{ ev.direction }}
+                            {% elif ev.type == 'shot_saved' %}
+                                <strong>{{ ev.team }}</strong> &#10132; Saved
+                            {% else %}
+                                <strong>{{ ev.team }}</strong> &#10132; Pass
+                            {% endif %}
+                            {% if ev.time is defined %}
+                                <span style="color:#556677;margin-left:8px;">{{ ev.time }}s</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
             {% endif %}
 
-            <div class="video-preview">
-                <video controls>
+            <div class="video-section">
+                <div class="video-section-header">Processed Video</div>
+                <video controls autoplay>
                     <source src="/video" type="video/mp4">
                     Your browser does not support video playback.
                 </video>
             </div>
+
             <div class="actions">
-                <a href="/download" class="download">Download Video</a>
-                <a href="/video" target="_blank">Open in New Tab</a>
+                <a href="/download" class="btn btn-primary">Download Video</a>
+                <a href="/video" target="_blank" class="btn btn-secondary">Open in New Tab</a>
             </div>
+        </div>
 
         {% elif state == "error" %}
-            <div class="message error">{{ message }}</div>
+        <div class="processing-view">
+            <h2 style="color: #ff4444;">Processing Failed</h2>
+            <p class="subtitle">{{ message }}</p>
+        </div>
         {% endif %}
 
         <div class="back-link">
-            <a href="/">Upload another video</a>
+            <a href="/">&#8592; Upload another video</a>
         </div>
     </div>
 
     {% if state == "processing" %}
     <script>
-        setTimeout(function() {
-            window.location.reload();
-        }, 5000);
+        function pollStatus() {
+            fetch('/api/status')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.state === 'done' || data.state === 'error') {
+                        window.location.reload();
+                    } else {
+                        setTimeout(pollStatus, 2000);
+                    }
+                })
+                .catch(() => setTimeout(pollStatus, 3000));
+        }
+        pollStatus();
     </script>
     {% endif %}
 </body>

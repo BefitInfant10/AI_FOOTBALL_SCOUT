@@ -3,3 +3,4 @@ opencv-python
 ultralytics
 deep-sort-realtime
 numpy
+imageio-ffmpeg

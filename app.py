@@ -40,10 +40,6 @@ def allowed_file(filename):
 def run_processing(input_path, output_path):
     global processing_status
     try:
-        processing_status["state"] = "processing"
-        processing_status["message"] = "Analyzing video... This may take a few minutes."
-        processing_status["stats"] = None
-
         _, stats = detect_video(input_path, output_path)
 
         processing_status["state"] = "done"
@@ -88,6 +84,10 @@ def upload_video():
         if processing_status["state"] == "processing":
             return render_template("index.html", message="A video is already being processed. Please wait.")
 
+        processing_status["state"] = "processing"
+        processing_status["message"] = "Analyzing video... This may take a few minutes."
+        processing_status["stats"] = None
+
         thread = threading.Thread(target=run_processing, args=(save_path, output_path), daemon=True)
         thread.start()
 
@@ -107,6 +107,16 @@ def status():
     )
 
 
+@app.route("/api/status")
+def api_status():
+    global processing_status
+    return {
+        "state": processing_status["state"],
+        "message": processing_status["message"],
+        "stats": processing_status["stats"],
+    }
+
+
 @app.route("/download")
 def download():
     output_path = os.path.join(app.config["OUTPUT_FOLDER"], "processed_video.mp4")
@@ -124,4 +134,4 @@ def video():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
